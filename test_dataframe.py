@@ -17,7 +17,7 @@ def df():
                           "PetalLengthCm", "PetalWidthCm"])
 def test_df_for_na_values(df, column_name):
     # Check for na values
-    output = df.expect_column_values_to_not_be_null(column="SepalLengthCm")
+    output = df.expect_column_values_to_not_be_null(column=column_name)
     assert output["success"], f"DataFrame contains na values in {column_name}: {df[column_name].isna().mean()}"
 
 
