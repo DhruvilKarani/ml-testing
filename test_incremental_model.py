@@ -35,8 +35,8 @@ def eval_dataset():
 
 
 def test_incremental_pipeline_better_than_random(eval_dataset, incremental_sentiment_pipeline, random_sentiment_pipeline):
-    incremental_accuracy = incremental_sentiment_pipeline.evaluate(eval_dataset, eval_steps=1, output_dir="./results") #TODO: change steps
-    random_accuracy = random_sentiment_pipeline.evaluate(eval_dataset, eval_steps=1, output_dir="./results") #TODO: change steps
+    incremental_accuracy = incremental_sentiment_pipeline.evaluate(eval_dataset, eval_steps=100, output_dir="./results") #TODO: change steps
+    random_accuracy = random_sentiment_pipeline.evaluate(eval_dataset, eval_steps=100, output_dir="./results") #TODO: change steps
     # Check that the incremental pipeline is better than the random pipeline
     assert incremental_accuracy > random_accuracy, f"Expected incremental accuracy {incremental_accuracy} > random accuracy {random_accuracy}"
 
