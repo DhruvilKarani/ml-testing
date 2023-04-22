@@ -1,9 +1,16 @@
-from transformers import pipeline
+import transformers
+from custom_pipeline import SentimentClassifierPipeline
 import pytest
+
+
+MODEL_NAME = "distilbert-base-uncased-finetuned-sst-2-english"
+
 
 @pytest.fixture(scope="session")
 def sentiment_pipeline():
-    sentiment_pipeline = pipeline("sentiment-analysis")
+    tokenizer = transformers.AutoTokenizer.from_pretrained(MODEL_NAME)
+    model = transformers.AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
+    sentiment_pipeline = SentimentClassifierPipeline(model, tokenizer)
     return sentiment_pipeline
 
 
@@ -11,10 +18,9 @@ def sentiment_pipeline():
                                       "I like you", "I feel good",
                                       "You did the right thing", "You are amazing!", "Thank you for your help."])
 def test_obvious_positive_examples(sentiment_pipeline, example):
-    results = sentiment_pipeline(example)
-    for result in results:
-        assert result["label"] == "POSITIVE", f"Expected POSITIVE, got {result['label']}"
-        assert result["score"] >= 0.8 and result["score"] <= 1.0, f"Expected 1.0 >= score >= 0.8, got {result['score']}"
+    result = sentiment_pipeline(example)
+    assert result["label"] == "POSITIVE", f"Expected POSITIVE, got {result['label']}"
+    assert result["score"] >= 0.8 and result["score"] <= 1.0, f"Expected 1.0 >= score >= 0.8, got {result['score']}"
 
 
 
@@ -23,10 +29,9 @@ def test_obvious_positive_examples(sentiment_pipeline, example):
                                       "I'm really frustrated with the way things are going.", 
                                       "You're making me angry.", "I can't believe you would do something like that."])
 def test_obvious_negative_examples(sentiment_pipeline, example):
-    results = sentiment_pipeline(example)
-    for result in results:
-        assert result["label"] == "NEGATIVE", f"Expected NEGATIVE, got {result['label']}"
-        assert result["score"] >= 0.8  and result["score"] <= 1.0, f"Expected 1.0>= score >= 0.8, got {result['score']}"
+    result = sentiment_pipeline(example)
+    assert result["label"] == "NEGATIVE", f"Expected NEGATIVE, got {result['label']}"
+    assert result["score"] >= 0.8  and result["score"] <= 1.0, f"Expected 1.0>= score >= 0.8, got {result['score']}"
 
 
 @pytest.mark.parametrize("example", [
@@ -37,10 +42,9 @@ def test_obvious_negative_examples(sentiment_pipeline, example):
     'I have been to the city of Mumbai and I did not like it there at all.'
 ])
 def test_city_invariance(sentiment_pipeline, example):
-    results = sentiment_pipeline(example)
-    for result in results:
-        assert result["label"] == "NEGATIVE", f"Expected NEGATIVE, got {result['label']}"
-        assert result["score"] >= 0.8  and result["score"] <= 1.0, f"Expected 1.0 >= score >= 0.8, got {result['score']}"
+    result = sentiment_pipeline(example)
+    assert result["label"] == "NEGATIVE", f"Expected NEGATIVE, got {result['label']}"
+    assert result["score"] >= 0.8  and result["score"] <= 1.0, f"Expected 1.0 >= score >= 0.8, got {result['score']}"
 
 
 
@@ -57,8 +61,7 @@ def test_city_invariance(sentiment_pipeline, example):
     "The world's largest snowflake on record measured 15 inches wide and 8 inches thick."
 ])
 def test_neutral_sentiment(sentiment_pipeline, example):
-    results = sentiment_pipeline(example)
-    for result in results:
-        assert result["score"] < 0.65, f"Expected score <0.65 got {result['score']} with label {result['label']}"
+    result = sentiment_pipeline(example)
+    assert result["score"] < 0.65, f"Expected score <0.65 got {result['score']} with label {result['label']}"
 
 
