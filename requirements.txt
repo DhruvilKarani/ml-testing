@@ -1,2 +1,5 @@
 tensorflow
 transformers[torch]
+great_expectations
+datasets
+scikit-learn
